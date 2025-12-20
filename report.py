@@ -1,79 +1,113 @@
 from datetime import datetime
 
 
-class Report:
+class ProcessingResult:
     def __init__(self, file_path):
         self.file_path = file_path
+        self.system_error = None
+
         self.report = {}
         self.errors = []
+        self.valid_rows = []
+
         self.amount_rows = 0
-        self.amount_errors = 0
         self.amount_valid_rows = 0
         self.amount_invalid_rows = 0
         self.status = ''
+        self.processed_at = datetime.now().strftime('%d.%m.%Y %H:%M')
 
-    def _prepare_to_generate_data_report(self):
-        if self.amount_rows == self.amount_valid_rows:
-            self.status = 'all valid'
-        elif self.amount_valid_rows == 0:
-            self.status = 'all invalid'
+
+class ConsoleReporter:
+    @staticmethod
+    def _prepare_to_generate_data_report(result: ProcessingResult):
+        if result.system_error:
+            result.status = 'System Error'
+            return
+
+        if result.amount_rows == result.amount_valid_rows:
+            result.status = 'all valid'
+        elif result.amount_valid_rows == 0:
+            result.status = 'all invalid'
         else:
-            self.status = 'partially valid'
+            result.status = 'partially valid'
 
-    def _generate_data_report(self, ):
-        self._prepare_to_generate_data_report()
-        self.report = {
+    @staticmethod
+    def _generate_data_report(result: ProcessingResult):
+        ConsoleReporter._prepare_to_generate_data_report(result)
+        result.report = {
             'main info': {
-                'status': self.status,
-                'file': self.file_path,
-                'datetime': datetime.now().strftime('%d.%m.%Y %H:%M')
+                'status': result.status,
+                'file': result.file_path,
+                'datetime': result.processed_at
             },
             'statistics': {
-                'amount_rows': self.amount_rows,
-                'amount_valid_rows': self.amount_valid_rows,
-                'amount_invalid_rows': self.amount_invalid_rows
+                'amount_rows': result.amount_rows,
+                'amount_valid_rows': result.amount_valid_rows,
+                'amount_invalid_rows': result.amount_invalid_rows
             },
-            'errors': self.errors
+            'errors': result.errors
         }
 
-    def print_data_report(self):
-        self._generate_data_report()
+    @staticmethod
+    def print_data_report(result: ProcessingResult):
+        if result.system_error:
+            ConsoleReporter._print_system_error_report(result)
+            return
+
+        ConsoleReporter._generate_data_report(result)
+
+        if result.status == 'all valid':
+            ConsoleReporter._print_success_validate(result)
+            return
+
         print('📊 REPORT:')
         print('-' * 20)
         print('📋 Main Info:')
-        print(f'Status: {self.report['main info']['status']}')
-        print(f'File: {self.report['main info']['file']}')
-        print(f'Date & Time: {self.report['main info']['datetime']}')
+        print(f'Status: {result.report['main info']['status']}')
+        print(f'File: {result.report['main info']['file']}')
+        print(f'Date & Time: {result.report['main info']['datetime']}')
         print('-' * 20)
         print('📈 Statistics')
-        print(f'Amount rows: {self.report['statistics']['amount_rows']}')
-        print(f'Valid rows: {self.report['statistics']['amount_valid_rows']}')
-        print(f'Invalid rows: {self.report['statistics']['amount_invalid_rows']}')
-        if self.errors:
+        print(f'Amount rows: {result.report['statistics']['amount_rows']}')
+        print(f'Valid rows: {result.report['statistics']['amount_valid_rows']}')
+        print(f'Invalid rows: {result.report['statistics']['amount_invalid_rows']}')
+        if result.errors:
+            ConsoleReporter._print_data_error(result)
+
+    @staticmethod
+    def _print_system_error_report(result: ProcessingResult):
+        print('🚫 SYSTEM ERROR REPORT:')
+        print('-' * 20)
+        print(f'Type: {type(result.system_error).__name__}')
+        print(f'Message: {str(result.system_error)}')
+        print(f'File: {result.file_path}')
+        print(f'Date & Time: {datetime.now().strftime("%d.%m.%Y %H:%M")}')
+
+    @staticmethod
+    def _print_data_error(result: ProcessingResult):
+        print('-' * 20)
+        print('🚫Errors: \n')
+        for dictionary in result.errors:
+            for key, value in dictionary.items():
+                print(f'{key}: {dictionary[key]}')
             print('-' * 20)
-            print('🚫Errors:')
-            for dictionary in self.errors:
-                for key, value in dictionary.items():
-                    print(f'{key}: {dictionary[key]}')
 
-    def print_exception_report(self, exception, error_name):
-        print(f'🚫 {error_name}')
+    @staticmethod
+    def _print_success_validate(result: ProcessingResult):
+        print('✅ DATA SUCCESS REPORT:')
         print('-' * 20)
-        print(f'Type: {type(exception).__name__}')
-        print(f'Message: {str(exception)}')
-        print(f'File: {self.file_path}')
-        print(f'Date & Time: {datetime.now().strftime('%d.%m.%Y %H:%M')}')
+        print('📋 Main Info:')
+        print(f'Status: {result.report['main info']['status']}')
+        print(f'File: {result.report['main info']['file']}')
+        print(f'Date & Time: {result.report['main info']['datetime']}')
 
-    def print_universal_report(self, error_name, error_text):
-        print(f'🚫 {error_name}')
-        print('-' * 20)
-        print(f'Message: {error_text}')
-        print(f'File: {self.file_path}')
-        print(f'Date & Time: {datetime.now().strftime('%d.%m.%Y %H:%M')}')
 
-    def error_collector(self, line, column, error_text):
-        self.errors.append({
-            'line': line,
-            'column': column,
-            'error': error_text
-        })
+
+
+
+
+
+
+
+
+
