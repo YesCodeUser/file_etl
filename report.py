@@ -101,6 +101,16 @@ class ConsoleReporter:
         print(f'File: {result.report['main info']['file']}')
         print(f'Date & Time: {result.report['main info']['datetime']}')
 
+    @staticmethod
+    def print_db_statistics(db_result):
+        print('-' * 20)
+        print('📊 RESULT OF SAVING IN DATABASE')
+        print('-' * 20)
+        print(f'📤 Accepted lines: {db_result['attempted']}')
+        print(f'✅ Saved lines: {db_result['inserted']}')
+        print(f'⚠️ Ignored lines: {db_result['ignored']}')
+
+
 
 
 

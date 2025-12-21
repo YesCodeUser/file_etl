@@ -3,6 +3,7 @@ import sys
 
 from validation import Validation
 from report import ConsoleReporter
+from storage import Storage
 
 
 parser = argparse.ArgumentParser(description='The script is used to retrieve and validate data from csv files')
@@ -22,4 +23,17 @@ if result.system_error:
 elif result.errors:
     sys.exit(2)
 else:
-    sys.exit(0)
+    storage = Storage()
+    storage.create_or_open_database()
+    db_result = storage.data_save(result.valid_rows)
+
+    if db_result.get('error'):
+        print(f'Error of saving in database: {db_result['error']}')
+        sys.exit(3)
+    else:
+        ConsoleReporter.print_db_statistics(db_result)
+        sys.exit(0)
+
+
+
+

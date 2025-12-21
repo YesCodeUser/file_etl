@@ -36,11 +36,11 @@ class Validation:
                 valid_salary = self._validate_salary(line_number, row['salary'])
 
                 if None not in (valid_id, valid_name, valid_salary):
-                    self.result.valid_rows.append({
-                        'id': valid_id,
-                        'name': valid_name,
-                        'salary': valid_salary
-                    })
+                    self.result.valid_rows.append((
+                        valid_id,
+                        valid_name,
+                        valid_salary
+                    ))
                     self.result.amount_valid_rows += 1
                 else:
                     self.result.amount_invalid_rows += 1
