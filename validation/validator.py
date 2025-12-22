@@ -1,6 +1,6 @@
 import os
 from csv import DictReader
-from report import ProcessingResult
+from core.validation_result import ValidationResult
 
 
 class Validation:
@@ -8,7 +8,7 @@ class Validation:
         self.file_path = file_path
         self.requirements_headers = requirements_headers
         self.unique_id = set()
-        self.result = ProcessingResult(file_path)
+        self.result = ValidationResult(file_path)
 
     def _is_file_empty(self):
         return os.path.getsize(self.file_path) == 0

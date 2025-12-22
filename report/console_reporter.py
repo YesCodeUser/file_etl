@@ -1,25 +1,10 @@
+from core.validation_result import ValidationResult
 from datetime import datetime
-
-
-class ProcessingResult:
-    def __init__(self, file_path):
-        self.file_path = file_path
-        self.system_error = None
-
-        self.report = {}
-        self.errors = []
-        self.valid_rows = []
-
-        self.amount_rows = 0
-        self.amount_valid_rows = 0
-        self.amount_invalid_rows = 0
-        self.status = ''
-        self.processed_at = datetime.now().strftime('%d.%m.%Y %H:%M')
 
 
 class ConsoleReporter:
     @staticmethod
-    def _prepare_to_generate_data_report(result: ProcessingResult):
+    def prepare_to_generate_data_report(result: ValidationResult):
         if result.system_error:
             result.status = 'System Error'
             return
@@ -32,8 +17,8 @@ class ConsoleReporter:
             result.status = 'partially valid'
 
     @staticmethod
-    def _generate_data_report(result: ProcessingResult):
-        ConsoleReporter._prepare_to_generate_data_report(result)
+    def _generate_data_report(result: ValidationResult):
+        ConsoleReporter.prepare_to_generate_data_report(result)
         result.report = {
             'main info': {
                 'status': result.status,
@@ -49,7 +34,7 @@ class ConsoleReporter:
         }
 
     @staticmethod
-    def print_data_report(result: ProcessingResult):
+    def print_data_report(result: ValidationResult):
         if result.system_error:
             ConsoleReporter._print_system_error_report(result)
             return
@@ -64,7 +49,7 @@ class ConsoleReporter:
         print('-' * 20)
         print('📋 Main Info:')
         print(f'Status: {result.report['main info']['status']}')
-        print(f'File: {result.report['main info']['file']}')
+        print(f'File: {result.report["main info"]["file"]}')
         print(f'Date & Time: {result.report['main info']['datetime']}')
         print('-' * 20)
         print('📈 Statistics')
@@ -75,7 +60,7 @@ class ConsoleReporter:
             ConsoleReporter._print_data_error(result)
 
     @staticmethod
-    def _print_system_error_report(result: ProcessingResult):
+    def _print_system_error_report(result: ValidationResult):
         print('🚫 SYSTEM ERROR REPORT:')
         print('-' * 20)
         print(f'Type: {type(result.system_error).__name__}')
@@ -84,7 +69,7 @@ class ConsoleReporter:
         print(f'Date & Time: {datetime.now().strftime("%d.%m.%Y %H:%M")}')
 
     @staticmethod
-    def _print_data_error(result: ProcessingResult):
+    def _print_data_error(result: ValidationResult):
         print('-' * 20)
         print('🚫Errors: \n')
         for dictionary in result.errors:
@@ -93,7 +78,7 @@ class ConsoleReporter:
             print('-' * 20)
 
     @staticmethod
-    def _print_success_validate(result: ProcessingResult):
+    def _print_success_validate(result: ValidationResult):
         print('✅ DATA SUCCESS REPORT:')
         print('-' * 20)
         print('📋 Main Info:')
@@ -109,6 +94,9 @@ class ConsoleReporter:
         print(f'📤 Accepted lines: {db_result['attempted']}')
         print(f'✅ Saved lines: {db_result['inserted']}')
         print(f'⚠️ Ignored lines: {db_result['ignored']}')
+
+
+
 
 
 
