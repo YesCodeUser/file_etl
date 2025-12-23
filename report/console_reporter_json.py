@@ -36,7 +36,9 @@ class ConsoleReporterJSON:
 
 
     @staticmethod
-    def print_json_report(result: ValidationResult):
+    def print_json_report(result: ValidationResult, db_result = None):
         ConsoleReporterJSON._prepare_generate_json_report(result)
         json_data = ConsoleReporterJSON._generate_json_report(result)
         print(json.dumps(json_data, indent=2, ensure_ascii=False))
+        if db_result:
+            print(json.dumps(db_result, indent=2, ensure_ascii=False))

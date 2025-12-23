@@ -45,7 +45,7 @@ Future access will be provided via API and Telegram bot.
 - JSON reports (for easy integration with other systems)
 
 ## Roadmap
-- PostgreSQL migration
+- Raw SQL
 - Dockerization
 - REST API
 - Telegram bot interface

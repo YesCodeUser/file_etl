@@ -4,7 +4,7 @@ from datetime import datetime
 
 class ConsoleReporter:
     @staticmethod
-    def prepare_to_generate_data_report(result: ValidationResult):
+    def _prepare_to_generate_data_report(result: ValidationResult):
         if result.system_error:
             result.status = 'System Error'
             return
@@ -18,7 +18,7 @@ class ConsoleReporter:
 
     @staticmethod
     def _generate_data_report(result: ValidationResult):
-        ConsoleReporter.prepare_to_generate_data_report(result)
+        ConsoleReporter._prepare_to_generate_data_report(result)
         result.report = {
             'main info': {
                 'status': result.status,
@@ -34,16 +34,12 @@ class ConsoleReporter:
         }
 
     @staticmethod
-    def print_data_report(result: ValidationResult):
+    def print_data_report(result: ValidationResult, db_result = None):
         if result.system_error:
             ConsoleReporter._print_system_error_report(result)
             return
 
         ConsoleReporter._generate_data_report(result)
-
-        if result.status == 'all valid':
-            ConsoleReporter._print_success_validate(result)
-            return
 
         print('📊 REPORT:')
         print('-' * 20)
@@ -58,6 +54,10 @@ class ConsoleReporter:
         print(f'Invalid rows: {result.report['statistics']['amount_invalid_rows']}')
         if result.errors:
             ConsoleReporter._print_data_error(result)
+
+        if db_result:
+            ConsoleReporter._print_db_statistics(db_result)
+
 
     @staticmethod
     def _print_system_error_report(result: ValidationResult):
@@ -87,13 +87,13 @@ class ConsoleReporter:
         print(f'Date & Time: {result.report['main info']['datetime']}')
 
     @staticmethod
-    def print_db_statistics(db_result):
+    def _print_db_statistics(db_result):
         print('-' * 20)
         print('📊 RESULT OF SAVING IN DATABASE')
         print('-' * 20)
-        print(f'📤 Accepted lines: {db_result['attempted']}')
-        print(f'✅ Saved lines: {db_result['inserted']}')
-        print(f'⚠️ Ignored lines: {db_result['ignored']}')
+        print(f'📤 Accepted lines: {db_result['database_result']['attempted']}')
+        print(f'✅ Saved lines: {db_result['database_result']['inserted']}')
+        print(f'⚠️ Ignored lines: {db_result['database_result']['ignored']}')
 
 
 
