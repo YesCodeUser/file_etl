@@ -1,6 +1,8 @@
 import argparse
 import sys
+import logging
 
+from logs.logs import setup_logging
 from core.application import Application
 from config import REQUIREMENTS_HEADERS
 from report.console_reporter import ConsoleReporter
@@ -11,6 +13,9 @@ def select_reporter(valid_result, database_result):
         return ConsoleReporterJSON.print_json_report(valid_result, database_result)
     else:
         return ConsoleReporter.print_data_report(valid_result, database_result)
+
+setup_logging()
+logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser(description='The script is used to retrieve and validate data from csv files')
 

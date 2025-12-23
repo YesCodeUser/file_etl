@@ -1,7 +1,9 @@
 import os
+import logging
 from csv import DictReader
 from core.validation_result import ValidationResult
 
+logger = logging.getLogger(__name__)
 
 class Validation:
     def __init__(self, file_path, requirements_headers=None):
@@ -14,6 +16,7 @@ class Validation:
         return os.path.getsize(self.file_path) == 0
 
     def run(self):
+        logger.info(f'Start validation. File: {self.result.file_path}')
         try:
             self._validate_file()
         except(FileNotFoundError, IsADirectoryError, ValueError) as e:
@@ -44,6 +47,7 @@ class Validation:
                     self.result.amount_valid_rows += 1
                 else:
                     self.result.amount_invalid_rows += 1
+            logger.info(f'Valid rows: {self.result.amount_valid_rows}')
 
             self.result.amount_rows = line_number or 0
 

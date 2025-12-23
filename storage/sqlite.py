@@ -1,6 +1,8 @@
+import logging
 import sqlite3
 from config import DB_PATH, TABLE_NAME
 
+logger = logging.getLogger(__name__)
 
 class Storage:
     def __init__(self):
@@ -30,6 +32,7 @@ class Storage:
             actual_insert = after_insert - before_insert
             ignored = attempted - actual_insert
 
+            logger.info('Adding rows to the database was successful.')
             return {
                 'database_result': {
                     'attempted': attempted,
@@ -39,6 +42,7 @@ class Storage:
             }
 
         except sqlite3.OperationalError as e:
+            logger.error(f'Database error: {e}')
             return {
                 'database_error': {
                     'error': str(e)

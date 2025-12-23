@@ -1,8 +1,10 @@
+import logging
 from validation.validator import Validation
 from core.validation_result import ValidationResult
 from config import ExitCode
 from storage.sqlite import Storage
 
+logger = logging.getLogger(__name__)
 
 class Application:
     def __init__(self, file_path, requirements_headers=None):
@@ -14,13 +16,26 @@ class Application:
         validation_result = self.validator.run()
 
         if Application._has_system_error(validation_result):
+            logger.critical(f'Validation system error: {validation_result.system_error}',
+                extra={
+                    'file': validation_result.file_path,
+                    'error_type': type(validation_result.system_error).__name__,
+                    'error': str(validation_result.system_error)
+                }
+            )
             return validation_result, ExitCode.SYSTEM_ERROR, None
 
         if Application._has_validate_error(validation_result):
+            logger.warning(f'Validation finished with errors. File: {validation_result.file_path}',
+                extra={
+                    'file': validation_result.file_path,
+                    'error': validation_result.errors
+                }
+            )
             return validation_result, ExitCode.VALIDATE_ERROR, None
+        logger.info(f'Validation is successful. File: {validation_result.file_path}')
 
         result = Application.mode_logic(args, validation_result)
-
         return result
 
     @staticmethod
@@ -48,7 +63,7 @@ class Application:
             storage.create_or_open_database()
             db_result = storage.data_save(validation_result.valid_rows)
             storage.close()
-            if db_result.get('error'):
+            if db_result.get('database_error'):
                 return validation_result, ExitCode.DATABASE_ERROR, db_result
             else:
                 return validation_result, ExitCode.SUCCESS, db_result
