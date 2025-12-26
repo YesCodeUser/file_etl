@@ -1,5 +1,8 @@
-from core.validation_result import ValidationResult
 from datetime import datetime
+
+from core.storage_result import StorageResult
+from core.validation_result import ValidationResult
+
 
 
 class ConsoleReporter:
@@ -87,13 +90,13 @@ class ConsoleReporter:
         print(f'Date & Time: {result.report['main info']['datetime']}')
 
     @staticmethod
-    def _print_db_statistics(db_result):
+    def _print_db_statistics(db_result: StorageResult):
         print('-' * 20)
         print('📊 RESULT OF SAVING IN DATABASE')
         print('-' * 20)
-        print(f'📤 Accepted lines: {db_result['database_result']['attempted']}')
-        print(f'✅ Saved lines: {db_result['database_result']['inserted']}')
-        print(f'⚠️ Ignored lines: {db_result['database_result']['ignored']}')
+        print(f'📤 Accepted lines: {db_result.database_result['attempted']}')
+        print(f'✅ Saved lines: {db_result.database_result['inserted']}')
+        print(f'⚠️ Ignored lines: {db_result.database_result['ignored']}')
 
 
 

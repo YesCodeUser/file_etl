@@ -3,8 +3,8 @@ import sys
 import logging
 
 from logs.logs import setup_logging
-from core.application import Application
 from config import REQUIREMENTS_HEADERS
+from core.application import Application
 from report.console_reporter import ConsoleReporter
 from report.console_reporter_json import ConsoleReporterJSON
 

@@ -40,5 +40,8 @@ class ConsoleReporterJSON:
         ConsoleReporterJSON._prepare_generate_json_report(result)
         json_data = ConsoleReporterJSON._generate_json_report(result)
         print(json.dumps(json_data, indent=2, ensure_ascii=False))
-        if db_result:
-            print(json.dumps(db_result, indent=2, ensure_ascii=False))
+        if db_result is not None:
+            if db_result.database_error:
+                print(json.dumps(db_result.database_error))
+            else:
+                print(json.dumps(db_result.database_result, indent=2, ensure_ascii=False))

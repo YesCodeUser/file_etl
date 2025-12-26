@@ -1,17 +1,20 @@
 import os
 import logging
+from pathlib import Path
 from csv import DictReader
+
 from core.validation_result import ValidationResult
 
 logger = logging.getLogger(__name__)
 
 class Validation:
     def __init__(self, file_path, requirements_headers=None):
-        self.file_path = file_path
+        self.file_path = Path(file_path)
         self.requirements_headers = requirements_headers
         self.unique_id = set()
         self.result = ValidationResult(file_path)
 
+    #HACK: function is not used, mb need delete
     def _is_file_empty(self):
         return os.path.getsize(self.file_path) == 0
 
@@ -23,7 +26,7 @@ class Validation:
             self.result.system_error = e
             return self.result
 
-        with open(self.file_path, 'r', encoding='utf-8') as file:
+        with self.file_path.open('r', encoding='utf-8') as file:
             try:
                 self._validate_structure_file(file)
             except ValueError as e:
@@ -54,16 +57,17 @@ class Validation:
         return self.result
 
     def _validate_file(self):
-        if not os.path.exists(self.file_path):
+        if not self.file_path.exists():
             raise FileNotFoundError(f'File {self.file_path} is not exists')
 
-        if not os.path.isfile(self.file_path):
+        if not self.file_path.is_file():
             raise IsADirectoryError(f'{self.file_path} is not file')
 
-        if not self.file_path.endswith('.csv'):
+        if self.file_path.suffix.lower() != '.csv':
             raise ValueError(f'File {self.file_path} is not .csv')
 
     def _validate_structure_file(self, file):
+        #HACK: lines read all file - its expensive
         lines = file.readlines()
 
         if not lines:

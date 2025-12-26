@@ -1,7 +1,7 @@
 import logging
 from validation.validator import Validation
 from core.validation_result import ValidationResult
-from config import ExitCode
+from config import EXIT_CODE, DB_PATH
 from storage.sqlite import Storage
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class Application:
                     'error': str(validation_result.system_error)
                 }
             )
-            return validation_result, ExitCode.SYSTEM_ERROR, None
+            return validation_result, EXIT_CODE.SYSTEM_ERROR, None
 
         if Application._has_validate_error(validation_result):
             logger.warning(f'Validation finished with errors. File: {validation_result.file_path}',
@@ -32,10 +32,10 @@ class Application:
                     'error': validation_result.errors
                 }
             )
-            return validation_result, ExitCode.VALIDATE_ERROR, None
+            return validation_result, EXIT_CODE.VALIDATE_ERROR, None
         logger.info(f'Validation is successful. File: {validation_result.file_path}')
 
-        result = Application.mode_logic(args, validation_result)
+        result = Application.mode_logic(args, validation_result, )
         return result
 
     @staticmethod
@@ -53,19 +53,17 @@ class Application:
     @staticmethod
     def mode_logic(args, validation_result):
         if (args.dry_run or args.no_db) and args.json:
-            return validation_result, ExitCode.SUCCESS, None
+            return validation_result, EXIT_CODE.SUCCESS, None
 
         elif args.dry_run or args.no_db:
-            return validation_result, ExitCode.SUCCESS, None
+            return validation_result, EXIT_CODE.SUCCESS, None
 
         else:
-            storage = Storage()
-            storage.create_or_open_database()
-            db_result = storage.data_save(validation_result.valid_rows)
-            storage.close()
-            if db_result.get('database_error'):
-                return validation_result, ExitCode.DATABASE_ERROR, db_result
+            storage = Storage(DB_PATH)
+            db_result = storage.run(validation_result.valid_rows)
+            if db_result.database_error:
+                return validation_result, EXIT_CODE.DATABASE_ERROR, db_result
             else:
-                return validation_result, ExitCode.SUCCESS, db_result
+                return validation_result, EXIT_CODE.SUCCESS, db_result
 
 
