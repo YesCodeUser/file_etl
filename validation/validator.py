@@ -1,4 +1,3 @@
-import os
 import logging
 from pathlib import Path
 from csv import DictReader
@@ -13,10 +12,6 @@ class Validation:
         self.requirements_headers = requirements_headers
         self.unique_id = set()
         self.result = ValidationResult(file_path)
-
-    #HACK: function is not used, mb need delete
-    def _is_file_empty(self):
-        return os.path.getsize(self.file_path) == 0
 
     def run(self):
         logger.info(f'Start validation. File: {self.result.file_path}')
@@ -67,18 +62,18 @@ class Validation:
             raise ValueError(f'File {self.file_path} is not .csv')
 
     def _validate_structure_file(self, file):
-        #HACK: lines read all file - its expensive
-        lines = file.readlines()
-
-        if not lines:
+        first_line = file.readline().strip()
+        if not first_line:
             raise ValueError(f'File {self.file_path} is empty')
 
-        first_line = lines[0]
-        for value in self.requirements_headers:
-            if value not in first_line:
-                raise ValueError(f'Column {value} is must be')
+        first_line_lower = first_line.lower()
+        headers = first_line_lower.split(',')
+        for required in self.requirements_headers:
+            if required not in headers:
+                raise ValueError(f'Column {required} is must be')
 
-        if len(lines) == 1:
+        second_line = file.readline().strip()
+        if not second_line:
             raise ValueError(f'File {self.file_path} is empty after header')
 
     def _validate_id(self, line_number, id_data):
@@ -170,3 +165,4 @@ class Validation:
             return None
 
         return salary_data_float
+

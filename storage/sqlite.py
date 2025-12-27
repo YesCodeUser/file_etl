@@ -6,7 +6,7 @@ from core.storage_result import StorageResult
 
 logger = logging.getLogger(__name__)
 
-#HACK Class Storage is doing too much, responsibility needs to separate
+
 class Storage:
     def __init__(self, db_path):
         self.db_path = db_path
@@ -16,26 +16,12 @@ class Storage:
 
     def run(self, valid_rows):
         try:
-            self.connection = sqlite3.connect(self.db_path)
-            self.cursor = self.connection.cursor()
-        except sqlite3.Error as e:
-            logger.error(f'Cannot connect to database: {e}')
-            self.result.database_error = f'Cannot connect to database: {e}'
-            return self.result
-
-        if not self._is_valid_table_name():
-            logger.error(f'Table name "{TABLE_NAME}" is not allowed. '
-                         f'Allowed names: {ALLOWED_TABLES_NAME}')
-            self.result.database_error = (f'Table name "{TABLE_NAME}" is not allowed. '
-                                          f'Allowed names: {ALLOWED_TABLES_NAME}')
-            self.safe_close()
-            return self.result
-
-        try:
-            self.create_or_open_database()
+            self.connect()
+            self.validate_schema()
             self.data_save(valid_rows)
-        except sqlite3.Error as e:
-            self.result.database_error = e
+
+        except (sqlite3.Error, ValueError) as e:
+            self.result.database_error = str(e)
             return self.result
 
         finally:
@@ -43,11 +29,19 @@ class Storage:
 
         return self.result
 
-    @staticmethod
-    def _is_valid_table_name():
-        return TABLE_NAME in ALLOWED_TABLES_NAME
+    def connect(self):
+        try:
+            self.connection = sqlite3.connect(self.db_path)
+            self.cursor = self.connection.cursor()
+        except sqlite3.Error as e:
+            logger.error(f'Cannot connect to database: {e}')
+            raise
 
-    def create_or_open_database(self):
+    def validate_schema(self):
+        if not self._is_valid_table_name():
+            raise ValueError(f'Table name "{TABLE_NAME}" is not allowed. '
+                             f'Allowed names: {ALLOWED_TABLES_NAME}')
+
         try:
             self.cursor.execute(f"""
                 CREATE TABLE IF NOT EXISTS {TABLE_NAME}(
@@ -57,8 +51,8 @@ class Storage:
                 )
             """)
             self.connection.commit()
-        except sqlite3.Error as e:
-            logger.error(f'Failed to create database: {e}')
+        except sqlite3.DatabaseError as e:
+            logger.error(f'Failed to create or open database: {e}')
             raise
 
     def data_save(self, valid_rows):
@@ -82,7 +76,7 @@ class Storage:
             }
 
         except sqlite3.Error as e:
-            logger.error(f'Database error: {e}')
+            logger.error(f'Transaction failed: {e}')
             raise
 
     def safe_close(self):
@@ -95,4 +89,6 @@ class Storage:
             except Exception as e:
                 logger.warning(f'Error while close connection {e}')
 
-    #TODO separate method for test - add_connect()
+    @staticmethod
+    def _is_valid_table_name():
+        return TABLE_NAME in ALLOWED_TABLES_NAME
