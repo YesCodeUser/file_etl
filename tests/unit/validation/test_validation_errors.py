@@ -2,8 +2,7 @@ from validation.validator import Validation
 from config import REQUIREMENTS_HEADERS
 
 
-def test_validation_id_is_missing(tmp_path):
-    file = tmp_path / 'data.csv'
+def test_validation_id_is_missing(file):
     file.write_text(
         'id,name,salary\n'
         ',artem,100'
@@ -16,8 +15,7 @@ def test_validation_id_is_missing(tmp_path):
     assert result.errors[0]['column'] == 'id'
 
 
-def test_validation_id_is_not_int(tmp_path):
-    file = tmp_path / 'data.csv'
+def test_validation_id_is_not_int(file):
     file.write_text(
         'id,name,salary\n'
         'ff,artem,100'
@@ -30,8 +28,7 @@ def test_validation_id_is_not_int(tmp_path):
     assert result.errors[0]['column'] == 'id'
 
 
-def test_validation_id_less_than_one(tmp_path):
-    file = tmp_path / 'data.csv'
+def test_validation_id_less_than_one(file):
     file.write_text(
         'id,name,salary\n'
         '0,artem,100'
@@ -44,8 +41,7 @@ def test_validation_id_less_than_one(tmp_path):
     assert result.errors[0]['column'] == 'id'
 
 
-def test_validation_id_is_not_unique(tmp_path):
-    file = tmp_path / 'data.csv'
+def test_validation_id_is_not_unique(file):
     file.write_text(
         'id,name,salary\n'
         '1,artem,100\n'
@@ -59,8 +55,7 @@ def test_validation_id_is_not_unique(tmp_path):
     assert result.errors[0]['column'] == 'id'
 
 
-def test_validation_name_is_missing(tmp_path):
-    file = tmp_path / 'data.csv'
+def test_validation_name_is_missing(file):
     file.write_text(
         'id,name,salary\n'
         '1,,100'
@@ -73,8 +68,7 @@ def test_validation_name_is_missing(tmp_path):
     assert result.errors[0]['column'] == 'name'
 
 
-def test_validation_name_is_not_str(tmp_path):
-    file = tmp_path / 'data.csv'
+def test_validation_name_is_not_str(file):
     file.write_text(
         'id,name,salary\n'
         '1,30,100'
@@ -87,8 +81,7 @@ def test_validation_name_is_not_str(tmp_path):
     assert result.errors[0]['column'] == 'name'
 
 
-def test_validation_salary_is_missing(tmp_path):
-    file = tmp_path / 'data.csv'
+def test_validation_salary_is_missing(file):
     file.write_text(
         'id,name,salary\n'
         '1,artem,'
@@ -101,8 +94,7 @@ def test_validation_salary_is_missing(tmp_path):
     assert result.errors[0]['column'] == 'salary'
 
 
-def test_validation_salary_is_not_float(tmp_path):
-    file = tmp_path / 'data.csv'
+def test_validation_salary_is_not_float(file):
     file.write_text(
         'id,name,salary\n'
         '1,artem,ff'
@@ -115,8 +107,7 @@ def test_validation_salary_is_not_float(tmp_path):
     assert result.errors[0]['column'] == 'salary'
 
 
-def test_validation_salary_less_than_zero(tmp_path):
-    file = tmp_path / 'data.csv'
+def test_validation_salary_less_than_zero(file):
     file.write_text(
         'id,name,salary\n'
         '1,artem,-100'

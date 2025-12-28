@@ -1,7 +1,7 @@
 import logging
 import sqlite3
 
-from config import TABLE_NAME, ALLOWED_TABLES_NAME
+import config
 from core.storage_result import StorageResult
 
 logger = logging.getLogger(__name__)
@@ -20,8 +20,8 @@ class Storage:
             self.validate_schema()
             self.data_save(valid_rows)
 
-        except (sqlite3.Error, ValueError) as e:
-            self.result.database_error = str(e)
+        except(sqlite3.Error, ValueError) as e:
+            self.result.database_error = e
             return self.result
 
         finally:
@@ -38,13 +38,13 @@ class Storage:
             raise
 
     def validate_schema(self):
-        if not self._is_valid_table_name():
-            raise ValueError(f'Table name "{TABLE_NAME}" is not allowed. '
-                             f'Allowed names: {ALLOWED_TABLES_NAME}')
+        if not Storage.is_valid_table_name():
+            raise ValueError(f'Table name "{config.TABLE_NAME}" is not allowed.'
+                             f'Allowed names: {config.ALLOWED_TABLES_NAME}')
 
         try:
             self.cursor.execute(f"""
-                CREATE TABLE IF NOT EXISTS {TABLE_NAME}(
+                CREATE TABLE IF NOT EXISTS {config.TABLE_NAME}(
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 salary REAL NOT NULL
@@ -57,14 +57,14 @@ class Storage:
 
     def data_save(self, valid_rows):
         attempted = len(valid_rows)
-        before_insert = self.cursor.execute(f"SELECT COUNT(id) FROM {TABLE_NAME}").fetchone()[0]
+        before_insert = self.cursor.execute(f"SELECT COUNT(id) FROM {config.TABLE_NAME}").fetchone()[0]
         try:
             with self.connection:
                 self.cursor.executemany(
-                    f'INSERT OR IGNORE INTO {TABLE_NAME} (id, name, salary) VALUES (?, ?, ?)',
+                    f'INSERT OR IGNORE INTO {config.TABLE_NAME} (id, name, salary) VALUES (?, ?, ?)',
                     valid_rows
                 )
-            after_insert = self.cursor.execute(f"SELECT COUNT(id) FROM {TABLE_NAME}").fetchone()[0]
+            after_insert = self.cursor.execute(f"SELECT COUNT(id) FROM {config.TABLE_NAME}").fetchone()[0]
             actual_insert = after_insert - before_insert
             ignored = attempted - actual_insert
 
@@ -86,9 +86,9 @@ class Storage:
                 self.connection = None
                 self.cursor = None
                 logger.debug('Database connection closed')
-            except Exception as e:
+            except sqlite3.Error as e:
                 logger.warning(f'Error while close connection {e}')
 
     @staticmethod
-    def _is_valid_table_name():
-        return TABLE_NAME in ALLOWED_TABLES_NAME
+    def is_valid_table_name():
+        return config.TABLE_NAME in config.ALLOWED_TABLES_NAME
