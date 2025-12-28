@@ -17,8 +17,6 @@ def test_validation_file_is_dir(tmp_path):
 
     result = validator.run()
 
-    print(result.system_error)
-
     assert isinstance(result.system_error, IsADirectoryError)
 
 
@@ -57,7 +55,5 @@ def test_validation_file_is_empty_after_header(file):
 
     validator = Validation(file, REQUIREMENTS_HEADERS)
     result = validator.run()
-
-    print(str(result.system_error))
 
     assert isinstance(result.system_error, ValueError)
