@@ -6,8 +6,9 @@ from storage.sqlite import Storage
 
 logger = logging.getLogger(__name__)
 
+
 class Application:
-    def __init__(self, file_path, requirements_headers=None, db_path = None):
+    def __init__(self, file_path, requirements_headers=None, db_path=None):
         self.file_path = file_path
         self.requirements_headers = requirements_headers
         self.validator = Validation(file_path, requirements_headers)
@@ -18,21 +19,21 @@ class Application:
 
         if Application._has_system_error(validation_result):
             logger.critical(f'Validation system error: {validation_result.system_error}',
-                extra={
-                    'file': validation_result.file_path,
-                    'error_type': type(validation_result.system_error).__name__,
-                    'error': str(validation_result.system_error)
-                }
-            )
+                            extra={
+                                'file': validation_result.file_path,
+                                'error_type': type(validation_result.system_error).__name__,
+                                'error': str(validation_result.system_error)
+                            }
+                            )
             return validation_result, EXIT_CODE.SYSTEM_ERROR, None
 
         if Application._has_validate_error(validation_result):
             logger.error(f'Validation finished with errors. File: {validation_result.file_path}',
-                extra={
-                    'file': validation_result.file_path,
-                    'error': validation_result.errors
-                }
-            )
+                         extra={
+                             'file': validation_result.file_path,
+                             'error': validation_result.errors
+                         }
+                         )
             return validation_result, EXIT_CODE.VALIDATE_ERROR, None
         logger.info(f'Validation is successful. File: {validation_result.file_path}')
 
@@ -51,20 +52,13 @@ class Application:
             return True
         return False
 
-    def mode_logic(self,args, validation_result):
-        if args.no_db and args.json:
+    def mode_logic(self, args, validation_result):
+        if args.no_db:
             return validation_result, EXIT_CODE.SUCCESS, None
 
-        elif args.no_db:
-            return validation_result, EXIT_CODE.SUCCESS, None
+        storage = Storage(self.db_path)
+        db_result = storage.run(validation_result.valid_rows)
 
-        else:
-            #TODO make separate method to work with database?
-            storage = Storage(self.db_path)
-            db_result = storage.run(validation_result.valid_rows)
-            if db_result.database_error:
-                return validation_result, EXIT_CODE.DATABASE_ERROR, db_result
-            else:
-                return validation_result, EXIT_CODE.SUCCESS, db_result
-
-
+        if db_result.database_error:
+            return validation_result, EXIT_CODE.DATABASE_ERROR, db_result
+        return validation_result, EXIT_CODE.SUCCESS, db_result
