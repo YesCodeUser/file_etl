@@ -20,11 +20,10 @@ def test_validation_file_is_dir(tmp_path):
     assert isinstance(result.system_error, IsADirectoryError)
 
 
-def test_validation_file_wrong_extension(tmp_path):
-    file = tmp_path / 'data.txt'
-    file.write_text('hello')
+def test_validation_file_wrong_extension(file_txt):
+    file_txt.write_text('hello')
 
-    validator = Validation(file, REQUIREMENTS_HEADERS)
+    validator = Validation(file_txt, REQUIREMENTS_HEADERS)
 
     result = validator.run()
 
@@ -32,28 +31,28 @@ def test_validation_file_wrong_extension(tmp_path):
     assert '.csv' in str(result.system_error)
 
 
-def test_validation_file_is_empty(file):
-    file.write_text('')
+def test_validation_file_is_empty(file_csv):
+    file_csv.write_text('')
 
-    validator = Validation(file, REQUIREMENTS_HEADERS)
+    validator = Validation(file_csv, REQUIREMENTS_HEADERS)
     result = validator.run()
 
     assert isinstance(result.system_error, ValueError)
 
 
-def test_validation_required_field_is_missing(file):
-    file.write_text('id,name')
+def test_validation_required_field_is_missing(file_csv):
+    file_csv.write_text('id,name')
 
-    validator = Validation(file, REQUIREMENTS_HEADERS)
+    validator = Validation(file_csv, REQUIREMENTS_HEADERS)
     result = validator.run()
 
     assert isinstance(result.system_error, ValueError)
 
 
-def test_validation_file_is_empty_after_header(file):
-    file.write_text('id,name,salary')
+def test_validation_file_is_empty_after_header(file_csv):
+    file_csv.write_text('id,name,salary')
 
-    validator = Validation(file, REQUIREMENTS_HEADERS)
+    validator = Validation(file_csv, REQUIREMENTS_HEADERS)
     result = validator.run()
 
     assert isinstance(result.system_error, ValueError)

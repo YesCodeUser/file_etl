@@ -37,7 +37,7 @@ class ConsoleReporter:
         }
 
     @staticmethod
-    def print_data_report(result: ValidationResult, db_result = None):
+    def print_report(result: ValidationResult, db_result = None):
         if result.system_error:
             ConsoleReporter._print_system_error_report(result)
             return
