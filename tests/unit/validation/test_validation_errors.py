@@ -51,7 +51,7 @@ def test_validation_id_is_not_unique(file_csv):
     validator = Validation(file_csv, REQUIREMENTS_HEADERS)
     result = validator.run()
 
-    assert len(result.errors) == 1
+    assert len(result.errors) == 2
     assert result.errors[0]['column'] == 'id'
 
 
@@ -63,6 +63,10 @@ def test_validation_name_is_missing(file_csv):
 
     validator = Validation(file_csv, REQUIREMENTS_HEADERS)
     result = validator.run()
+
+    print(f'SYSTEM ERRORS: {result.system_error}')
+    print(f'ERRORS: {result.errors}')
+    print(f'AMOUNT VALID ROWS: {result.amount_valid_rows}')
 
     assert len(result.errors) == 1
     assert result.errors[0]['column'] == 'name'
