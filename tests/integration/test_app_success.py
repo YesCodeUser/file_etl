@@ -30,7 +30,25 @@ def test_default_app_success(file_csv, db_path, application, mock_args):
     assert db_result.database_result['ignored'] == 0
     assert db_result.database_result['inserted'] == 2
 
-    assert reporter == ConsoleReporter
+    assert isinstance(reporter, ConsoleReporter)
+
+    reporter.print_report(validation_result, db_result)
+    report = reporter.report
+    system_error_report = reporter.system_error_report
+
+    assert system_error_report == {}
+
+    assert report['main_info']['status'] == 'all valid'
+    assert report['main_info']['file'] == str(file_csv)
+    assert report['main_info']['datetime']
+    assert report['statistics']['amount_rows'] == 2
+    assert report['statistics']['amount_valid_rows'] == 2
+    assert report['statistics']['amount_invalid_rows'] == 0
+    assert report['errors'] == []
+
+    assert db_result.database_result['attempted'] == 2
+    assert db_result.database_result['inserted'] == 2
+    assert db_result.database_result['ignored'] == 0
 
 
 def test_no_db_app_success(file_csv, mock_args, application, storage):
@@ -57,7 +75,21 @@ def test_no_db_app_success(file_csv, mock_args, application, storage):
     assert db_result is None
     assert storage.connection is None
 
-    assert reporter == ConsoleReporter
+    assert isinstance(reporter, ConsoleReporter)
+
+    reporter.print_report(validation_result, db_result)
+    report = reporter.report
+    system_error_report = reporter.system_error_report
+
+    assert system_error_report == {}
+
+    assert report['main_info']['status'] == 'all valid'
+    assert report['main_info']['file'] == str(file_csv)
+    assert report['main_info']['datetime']
+    assert report['statistics']['amount_rows'] == 1
+    assert report['statistics']['amount_valid_rows'] == 1
+    assert report['statistics']['amount_invalid_rows'] == 0
+    assert report['errors'] == []
 
 
 def test_json_app_success(file_csv, mock_args, application):
@@ -87,7 +119,26 @@ def test_json_app_success(file_csv, mock_args, application):
     assert db_result.database_result['ignored'] == 0
     assert db_result.database_result['inserted'] == 1
 
-    assert reporter == ConsoleReporterJSON
+    assert isinstance(reporter, ConsoleReporterJSON)
+
+    reporter.print_report(validation_result, db_result)
+    report = reporter.json_data
+
+    json_system_errors = reporter.json_system_error
+
+    assert json_system_errors == {}
+
+    assert report['main_info']['status'] == 'all valid'
+    assert report['main_info']['file'] == str(file_csv)
+    assert report['main_info']['datetime']
+    assert report['statistics']['amount_rows'] == 1
+    assert report['statistics']['amount_valid_rows'] == 1
+    assert report['statistics']['amount_invalid_rows'] == 0
+    assert report['errors'] == []
+
+    assert db_result.database_result['attempted'] == 1
+    assert db_result.database_result['inserted'] == 1
+    assert db_result.database_result['ignored'] == 0
 
 
 def test_no_db_json_app_success(file_csv, mock_args, application, storage):
@@ -103,6 +154,10 @@ def test_no_db_json_app_success(file_csv, mock_args, application, storage):
     validation_result, exit_code, db_result = application.run(args)
     reporter = select_reporter(args)
 
+    json_system_errors = reporter.json_system_error
+
+    assert json_system_errors == {}
+
     assert validation_result.errors == []
     assert validation_result.system_error is None
     assert len(validation_result.valid_rows) == 1
@@ -115,4 +170,15 @@ def test_no_db_json_app_success(file_csv, mock_args, application, storage):
     assert db_result is None
     assert storage.connection is None
 
-    assert reporter == ConsoleReporterJSON
+    assert isinstance(reporter, ConsoleReporterJSON)
+
+    reporter.print_report(validation_result, db_result)
+    report = reporter.json_data
+
+    assert report['main_info']['status'] == 'all valid'
+    assert report['main_info']['file'] == str(file_csv)
+    assert report['main_info']['datetime']
+    assert report['statistics']['amount_rows'] == 1
+    assert report['statistics']['amount_valid_rows'] == 1
+    assert report['statistics']['amount_invalid_rows'] == 0
+    assert report['errors'] == []

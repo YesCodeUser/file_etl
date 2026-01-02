@@ -18,9 +18,9 @@ def parse_argument():
 
 def select_reporter(args):
     if args.json:
-        return ConsoleReporterJSON
+        return ConsoleReporterJSON()
     else:
-        return ConsoleReporter
+        return ConsoleReporter()
 
 
 def main():

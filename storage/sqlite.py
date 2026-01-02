@@ -1,6 +1,8 @@
 import logging
 import sqlite3
 
+import pandas as pd
+
 import config
 from core.storage_result import StorageResult
 
@@ -18,9 +20,20 @@ class Storage:
         try:
             self.connect()
             self.validate_schema()
-            self.data_save(valid_rows)
 
-        except(sqlite3.Error, ValueError) as e:
+            if not valid_rows:
+                self.result.database_result = {
+                    "attempted": 0,
+                    "ignored": 0,
+                    "inserted": 0,
+                }
+                return self.result
+
+            df = self._rows_to_dataframe(valid_rows)
+            self._save_dataframe(df)
+
+        except Exception as e:
+            logger.error(f'Database error: {e}')
             self.result.database_error = e
             return self.result
 
@@ -38,7 +51,7 @@ class Storage:
             raise
 
     def validate_schema(self):
-        if not Storage.is_valid_table_name():
+        if not Storage._is_valid_table_name():
             raise ValueError(f'Table name "{config.TABLE_NAME}" is not allowed.'
                              f'Allowed names: {config.ALLOWED_TABLES_NAME}')
 
@@ -55,29 +68,43 @@ class Storage:
             logger.error(f'Failed to create or open database: {e}')
             raise
 
-    def data_save(self, valid_rows):
-        attempted = len(valid_rows)
-        before_insert = self.cursor.execute(f"SELECT COUNT(id) FROM {config.TABLE_NAME}").fetchone()[0]
-        try:
-            with self.connection:
-                self.cursor.executemany(
-                    f'INSERT OR IGNORE INTO {config.TABLE_NAME} (id, name, salary) VALUES (?, ?, ?)',
-                    valid_rows
-                )
-            after_insert = self.cursor.execute(f"SELECT COUNT(id) FROM {config.TABLE_NAME}").fetchone()[0]
-            actual_insert = after_insert - before_insert
-            ignored = attempted - actual_insert
+    def _save_dataframe(self, df: pd.DataFrame):
+        attempted = len(df)
+        before_insert = self._count_rows()
+        df = df.drop_duplicates(subset=['id'])
 
-            logger.info('Adding rows to the database was successful.')
+        try:
+            df.to_sql(
+                config.TABLE_NAME,
+                self.connection,
+                if_exists='append',
+                index=False
+            )
+
+        except Exception as e:
+            logger.error(f'DataFrame insert failed: {e}')
             self.result.database_result = {
                 'attempted': attempted,
-                'ignored': ignored,
-                'inserted': actual_insert
+                'inserted': 0,
+                'ignored': attempted
             }
-
-        except sqlite3.Error as e:
-            logger.error(f'Transaction failed: {e}')
             raise
+
+        after_insert = self._count_rows()
+
+        inserted = after_insert - before_insert
+        ignored = attempted - inserted
+
+        self.result.database_result = {
+            "attempted": attempted,
+            "inserted": inserted,
+            "ignored": ignored,
+        }
+
+        logger.info(
+            f"Database insert finished."
+            f"Attempted={attempted}, Inserted={inserted}, Ignored={ignored}"
+        )
 
     def safe_close(self):
         if self.connection:
@@ -86,9 +113,27 @@ class Storage:
                 self.connection = None
                 self.cursor = None
                 logger.debug('Database connection closed')
-            except sqlite3.Error as e:
+            except Exception as e:
                 logger.warning(f'Error while close connection {e}')
 
     @staticmethod
-    def is_valid_table_name():
+    def _is_valid_table_name():
         return config.TABLE_NAME in config.ALLOWED_TABLES_NAME
+
+    @staticmethod
+    def _rows_to_dataframe(valid_rows):
+        df = pd.DataFrame(
+            valid_rows,
+            columns=['id', 'name', 'salary']
+        )
+
+        df['id'] = df['id'].astype(int)
+        df['name'] = df['name'].astype(str)
+        df['salary'] = df['salary'].astype(float)
+
+        return df
+
+    def _count_rows(self):
+        return self.cursor.execute(
+            f"SELECT COUNT(id) FROM {config.TABLE_NAME}"
+        ).fetchone()[0]

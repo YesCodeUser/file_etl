@@ -39,7 +39,7 @@ def test_storage_transaction_failed(storage, monkeypatch):
     def transaction_failed(self, valid_rows):
         raise sqlite3.Error
 
-    monkeypatch.setattr(Storage, 'data_save', transaction_failed)
+    monkeypatch.setattr(Storage, '_save_dataframe', transaction_failed)
 
     result = storage.run([(1, 'artem', 100)])
 
