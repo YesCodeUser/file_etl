@@ -1,0 +1,8 @@
+services:
+  csv-validator:
+    build: .
+    image: csv-validator
+    container_name: csv-validator
+    volumes:
+      - ./data:/data
+    entrypoint: ["python3", "-m", "app"]

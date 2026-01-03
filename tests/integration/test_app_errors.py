@@ -1,6 +1,3 @@
-import io
-from contextlib import redirect_stdout
-
 from config import EXIT_CODE
 from app import select_reporter
 from report.console_reporter import ConsoleReporter

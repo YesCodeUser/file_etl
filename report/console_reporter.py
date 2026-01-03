@@ -56,7 +56,10 @@ class ConsoleReporter:
             ConsoleReporter._print_data_error(result)
 
         if db_result:
-            ConsoleReporter._print_db_statistics(db_result)
+            if db_result.database_result:
+                ConsoleReporter._print_db_statistics(db_result)
+            if db_result.database_error:
+                ConsoleReporter._print_db_errors(db_result)
 
     def _generate_system_error_report(self, result: ValidationResult):
         result.status = 'system_error'
@@ -103,3 +106,10 @@ class ConsoleReporter:
         print(f'📤 Accepted lines: {db_result.database_result['attempted']}')
         print(f'✅ Saved lines: {db_result.database_result['inserted']}')
         print(f'⚠️ Ignored lines: {db_result.database_result['ignored']}')
+
+    @staticmethod
+    def _print_db_errors(db_result: StorageResult):
+        print('-' * 20)
+        print('🚫 DATABASE ERRORS')
+        print('-' * 20)
+        print(f'Error: {db_result.database_error}')

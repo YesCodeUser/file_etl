@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 class ExitCode:
@@ -11,7 +12,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 APP_NAME = 'csv_validator'
 ENV = 'base'
 
-DB_PATH = BASE_DIR / 'data' / 'employees.db'
+DB_PATH = Path(
+    os.getenv("DB_PATH", "/data/employees.db")
+)
 TABLE_NAME = 'employees'
 ALLOWED_TABLES_NAME = [
     'employees', 'employee',

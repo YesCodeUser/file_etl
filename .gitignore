@@ -1,8 +1,13 @@
 .venv
 .idea
+
 *.env
-*.csv
+
 __pycache__
+
+*.csv
 *.db
 data/
+
 *.log
+logs/
