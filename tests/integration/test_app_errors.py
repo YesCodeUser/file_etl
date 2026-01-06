@@ -1,13 +1,10 @@
-import io
-from contextlib import redirect_stdout
-
 from config import EXIT_CODE
 from app import select_reporter
 from report.console_reporter import ConsoleReporter
 from report.console_reporter_json import ConsoleReporterJSON
 
 
-def test_default_validate_data_error(file_csv, storage, application, mock_args):
+def test_default_validate_data_error(file_csv, storage, application_no_db, mock_args):
     file_csv.write_text(
         'id,name,salary\n'
         '0,artem,100'
@@ -15,13 +12,12 @@ def test_default_validate_data_error(file_csv, storage, application, mock_args):
 
     args = mock_args
 
-    validation_result, exit_code, db_result = application.run(args)
+    validation_result, exit_code, db_result = application_no_db.run(args)
     reporter = select_reporter(args)
 
     assert exit_code == EXIT_CODE.VALIDATE_ERROR
 
     assert db_result is None
-    assert storage.connection is None
 
     assert isinstance(reporter, ConsoleReporter)
 
@@ -37,12 +33,12 @@ def test_default_validate_data_error(file_csv, storage, application, mock_args):
     assert report['errors'] != []
 
 
-def test_default_validate_system_error(file_csv, storage, application, mock_args):
+def test_default_validate_system_error(file_csv, storage, application_no_db, mock_args):
     file_csv.write_text('')
 
     args = mock_args
 
-    validation_result, exit_code, db_result = application.run(args)
+    validation_result, exit_code, db_result = application_no_db.run(args)
     reporter = select_reporter(args)
 
     reporter.print_report(validation_result)
@@ -54,7 +50,6 @@ def test_default_validate_system_error(file_csv, storage, application, mock_args
     assert exit_code == EXIT_CODE.SYSTEM_ERROR
 
     assert db_result is None
-    assert storage.connection is None
 
     assert isinstance(reporter, ConsoleReporter)
 
@@ -64,7 +59,7 @@ def test_default_validate_system_error(file_csv, storage, application, mock_args
     assert system_error_report['date_time']
 
 
-def test_no_db_validate_data_error(file_csv, storage, application, mock_args):
+def test_no_db_validate_data_error(file_csv, storage, application_no_db, mock_args):
     file_csv.write_text(
         'id,name,salary\n'
         '0,artem,100'
@@ -73,13 +68,12 @@ def test_no_db_validate_data_error(file_csv, storage, application, mock_args):
     mock_args.no_db = True
     args = mock_args
 
-    validation_result, exit_code, db_result = application.run(args)
+    validation_result, exit_code, db_result = application_no_db.run(args)
     reporter = select_reporter(args)
 
     assert exit_code == EXIT_CODE.VALIDATE_ERROR
 
     assert db_result is None
-    assert storage.connection is None
 
     assert isinstance(reporter, ConsoleReporter)
 
@@ -95,13 +89,13 @@ def test_no_db_validate_data_error(file_csv, storage, application, mock_args):
     assert report['errors'] != []
 
 
-def test_no_db_validate_system_error(file_csv, storage, application, mock_args):
+def test_no_db_validate_system_error(file_csv, storage, application_no_db, mock_args):
     file_csv.write_text('')
 
     mock_args.no_db = True
     args = mock_args
 
-    validation_result, exit_code, db_result = application.run(args)
+    validation_result, exit_code, db_result = application_no_db.run(args)
 
     reporter = select_reporter(args)
     reporter.print_report(validation_result)
@@ -113,7 +107,6 @@ def test_no_db_validate_system_error(file_csv, storage, application, mock_args):
     assert exit_code == EXIT_CODE.SYSTEM_ERROR
 
     assert db_result is None
-    assert storage.connection is None
 
     assert isinstance(reporter, ConsoleReporter)
 
@@ -123,7 +116,7 @@ def test_no_db_validate_system_error(file_csv, storage, application, mock_args):
     assert system_error_report['date_time']
 
 
-def test_json_validate_data_error(file_csv, storage, application, mock_args):
+def test_json_validate_data_error(file_csv, storage, application_no_db, mock_args):
     file_csv.write_text(
         'id,name,salary\n'
         '0,artem,100'
@@ -132,7 +125,7 @@ def test_json_validate_data_error(file_csv, storage, application, mock_args):
     mock_args.json = True
     args = mock_args
 
-    validation_result, exit_code, db_result = application.run(args)
+    validation_result, exit_code, db_result = application_no_db.run(args)
     reporter = select_reporter(args)
 
     reporter.print_report(validation_result)
@@ -144,7 +137,6 @@ def test_json_validate_data_error(file_csv, storage, application, mock_args):
     assert exit_code == EXIT_CODE.VALIDATE_ERROR
 
     assert db_result is None
-    assert storage.connection is None
 
     assert isinstance(reporter, ConsoleReporterJSON)
 
@@ -160,13 +152,13 @@ def test_json_validate_data_error(file_csv, storage, application, mock_args):
     assert report['errors'] != []
 
 
-def test_json_validate_system_error(file_csv, storage, application, mock_args):
+def test_json_validate_system_error(file_csv, storage, application_no_db, mock_args):
     file_csv.write_text('')
 
     mock_args.json = True
     args = mock_args
 
-    validation_result, exit_code, db_result = application.run(args)
+    validation_result, exit_code, db_result = application_no_db.run(args)
     reporter = select_reporter(args)
 
     reporter.print_report(validation_result)
@@ -177,7 +169,6 @@ def test_json_validate_system_error(file_csv, storage, application, mock_args):
     assert exit_code == EXIT_CODE.SYSTEM_ERROR
 
     assert db_result is None
-    assert storage.connection is None
 
     assert isinstance(reporter, ConsoleReporterJSON)
 
@@ -187,7 +178,7 @@ def test_json_validate_system_error(file_csv, storage, application, mock_args):
     assert json_system_error['date_time']
 
 
-def test_json_no_db_validate_data_error(file_csv, storage, application, mock_args):
+def test_json_no_db_validate_data_error(file_csv, storage, application_no_db, mock_args):
     file_csv.write_text(
         'id,name,salary\n'
         '0,artem,100'
@@ -197,7 +188,7 @@ def test_json_no_db_validate_data_error(file_csv, storage, application, mock_arg
     mock_args.no_db = True
     args = mock_args
 
-    validation_result, exit_code, db_result = application.run(args)
+    validation_result, exit_code, db_result = application_no_db.run(args)
     reporter = select_reporter(args)
 
     assert validation_result.errors != []
@@ -205,19 +196,18 @@ def test_json_no_db_validate_data_error(file_csv, storage, application, mock_arg
     assert exit_code == EXIT_CODE.VALIDATE_ERROR
 
     assert db_result is None
-    assert storage.connection is None
 
     assert isinstance(reporter, ConsoleReporterJSON)
 
 
-def test_json_no_db_validate_system_error(file_csv, storage, application, mock_args):
+def test_json_no_db_validate_system_error(file_csv, storage, application_no_db, mock_args):
     file_csv.write_text('')
 
     mock_args.json = True
     mock_args.no_db = True
     args = mock_args
 
-    validation_result, exit_code, db_result = application.run(args)
+    validation_result, exit_code, db_result = application_no_db.run(args)
     reporter = select_reporter(args)
     reporter.print_report(validation_result)
 
@@ -228,7 +218,6 @@ def test_json_no_db_validate_system_error(file_csv, storage, application, mock_a
     assert exit_code == EXIT_CODE.SYSTEM_ERROR
 
     assert db_result is None
-    assert storage.connection is None
 
     assert isinstance(reporter, ConsoleReporterJSON)
 

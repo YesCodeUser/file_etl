@@ -8,26 +8,6 @@ from config import dev
 class ConfigValidationHelper:
 
     @staticmethod
-    def db_path_is_valid():
-        assert isinstance(config.DB_PATH, Path)
-        assert config.DB_PATH is not None
-        assert config.DB_PATH.suffix in ['.db', '.sqlite', '.sqlite3']
-
-    @staticmethod
-    def table_name_is_valid():
-        assert isinstance(config.TABLE_NAME, str)
-        assert config.TABLE_NAME.strip() != ''
-        assert config.TABLE_NAME in config.ALLOWED_TABLES_NAME
-
-    @staticmethod
-    def allowed_tables_name_is_valid():
-        assert isinstance(config.ALLOWED_TABLES_NAME, list)
-        for value in config.ALLOWED_TABLES_NAME:
-            assert isinstance(value, str)
-
-        assert config.ALLOWED_TABLES_NAME != []
-
-    @staticmethod
     def requirements_headers_is_valid():
         assert isinstance(config.REQUIREMENTS_HEADERS, list)
         for value in config.REQUIREMENTS_HEADERS:
@@ -64,9 +44,6 @@ class ConfigValidationHelper:
 
 def test_required_config_attributes_exists():
     required = [
-        'DB_PATH',
-        'TABLE_NAME',
-        'ALLOWED_TABLES_NAME',
         'REQUIREMENTS_HEADERS',
         'LOG_LEVEL',
         'LOG_DIR',
@@ -79,9 +56,6 @@ def test_required_config_attributes_exists():
 
 
 def test_correctness_of_values():
-    ConfigValidationHelper.db_path_is_valid()
-    ConfigValidationHelper.table_name_is_valid()
-    ConfigValidationHelper.allowed_tables_name_is_valid()
     ConfigValidationHelper.requirements_headers_is_valid()
     ConfigValidationHelper.log_level_is_valid()
     ConfigValidationHelper.log_dir_is_valid()

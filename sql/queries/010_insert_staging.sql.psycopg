@@ -1,0 +1,2 @@
+INSERT INTO staging_employees (id, name, salary)
+VALUES (%s, %s, %s)

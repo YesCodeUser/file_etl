@@ -1,18 +1,18 @@
 import logging
 from validation.validator import Validation
 from core.validation_result import ValidationResult
-from config import EXIT_CODE, DB_PATH
-from storage.sqlite import Storage
+from config import EXIT_CODE
+from storage.postgres import PostgresStorage
 
 logger = logging.getLogger(__name__)
 
 
 class Application:
-    def __init__(self, file_path, requirements_headers=None, db_path=None):
+    def __init__(self, file_path,  requirements_headers=None, storage=None,):
         self.file_path = file_path
+        self.storage = storage
         self.requirements_headers = requirements_headers
         self.validator = Validation(file_path, requirements_headers)
-        self.db_path = db_path or DB_PATH
 
     def run(self, args):
         validation_result = self.validator.run()
@@ -56,9 +56,12 @@ class Application:
         if args.no_db:
             return validation_result, EXIT_CODE.SUCCESS, None
 
-        storage = Storage(self.db_path)
+        print(f'SELF STORAGE: {self.storage}')
+
+        storage = self.storage or PostgresStorage()
         db_result = storage.run(validation_result.valid_rows)
 
         if db_result.database_error:
             return validation_result, EXIT_CODE.DATABASE_ERROR, db_result
+
         return validation_result, EXIT_CODE.SUCCESS, db_result

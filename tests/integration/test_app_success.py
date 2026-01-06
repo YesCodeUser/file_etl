@@ -4,11 +4,11 @@ from report.console_reporter import ConsoleReporter
 from app import select_reporter
 
 
-def test_default_app_success(file_csv, db_path, application, mock_args):
+def test_default_app_success(file_csv, application, mock_args, pg_conn):
     file_csv.write_text(
         'id,name,salary\n'
-        '1,andrey,1000\n'
-        '2,john,200'
+        '30,andrey,1000\n'
+        '31,john,200'
     )
 
     args = mock_args
@@ -51,7 +51,7 @@ def test_default_app_success(file_csv, db_path, application, mock_args):
     assert db_result.database_result['ignored'] == 0
 
 
-def test_no_db_app_success(file_csv, mock_args, application, storage):
+def test_no_db_app_success(file_csv, mock_args, application_no_db):
     file_csv.write_text(
         'id,name,salary\n'
         '1,artem,1000'
@@ -60,7 +60,7 @@ def test_no_db_app_success(file_csv, mock_args, application, storage):
 
     args = mock_args
 
-    validation_result, exit_code, db_result = application.run(args)
+    validation_result, exit_code, db_result = application_no_db.run(args)
     reporter = select_reporter(args)
 
     assert validation_result.errors == []
@@ -73,7 +73,6 @@ def test_no_db_app_success(file_csv, mock_args, application, storage):
     assert exit_code == EXIT_CODE.SUCCESS
 
     assert db_result is None
-    assert storage.connection is None
 
     assert isinstance(reporter, ConsoleReporter)
 
@@ -95,7 +94,7 @@ def test_no_db_app_success(file_csv, mock_args, application, storage):
 def test_json_app_success(file_csv, mock_args, application):
     file_csv.write_text(
         'id,name,salary\n'
-        '1,artem,200'
+        '30,artem,200'
     )
 
     mock_args.json = True
@@ -141,7 +140,7 @@ def test_json_app_success(file_csv, mock_args, application):
     assert db_result.database_result['ignored'] == 0
 
 
-def test_no_db_json_app_success(file_csv, mock_args, application, storage):
+def test_no_db_json_app_success(file_csv, mock_args, application_no_db, storage):
     file_csv.write_text(
         'id,name,salary\n'
         '1,artem,1000'
@@ -151,7 +150,7 @@ def test_no_db_json_app_success(file_csv, mock_args, application, storage):
 
     args = mock_args
 
-    validation_result, exit_code, db_result = application.run(args)
+    validation_result, exit_code, db_result = application_no_db.run(args)
     reporter = select_reporter(args)
 
     json_system_errors = reporter.json_system_error
@@ -168,7 +167,6 @@ def test_no_db_json_app_success(file_csv, mock_args, application, storage):
     assert exit_code == EXIT_CODE.SUCCESS
 
     assert db_result is None
-    assert storage.connection is None
 
     assert isinstance(reporter, ConsoleReporterJSON)
 

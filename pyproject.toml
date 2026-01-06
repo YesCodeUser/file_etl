@@ -3,6 +3,11 @@ name = 'file_etl'
 version = '0.1.0'
 requires-python = '>= 3.12'
 
+[project.dependencies]
+sqlalchemy = "^2.0"
+psycopg = { extras = ["binary"], version = "^3.1" }
+
+
 [tool.pytest.ini_options]
 pythonpath = ['.']
 
