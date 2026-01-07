@@ -2,27 +2,24 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
-
-DB_BACKEND = os.getenv('DB_BACKEND')
+load_dotenv('.env.local')
 
 POSTGRES = {
-    'user': os.getenv('POSTGRES_USER'),
-    'password': os.getenv('POSTGRES_PASSWORD'),
-    'host': os.getenv('POSTGRES_HOST'),
-    'port': int(os.getenv('POSTGRES_PORT')),
-    'database': os.getenv('POSTGRES_DATABASE')
+    'user': os.getenv('POSTGRES_USER', "user"),
+    'password': os.getenv('POSTGRES_PASSWORD', 'password123'),
+    'host': os.getenv('POSTGRES_HOST', 'localhost'),
+    'port': int(os.getenv('POSTGRES_PORT', 5432)),
+    'database': os.getenv('POSTGRES_DB', 'db_name')
 }
 
+
 def get_database_url():
-    if DB_BACKEND == 'postgres':
-        return (
-            f"postgresql://"
-            f"{POSTGRES['user']}:{POSTGRES['password']}@"
-            f"{POSTGRES['host']}:{POSTGRES['port']}/"
-            f"{POSTGRES['database']}"
-        )
-    raise RuntimeError("Unsupported DB backend")
+    return (
+        f"postgresql://"
+        f"{POSTGRES['user']}:{POSTGRES['password']}@"
+        f"{POSTGRES['host']}:{POSTGRES['port']}/"
+        f"{POSTGRES['database']}"
+    )
 
 
 class ExitCode:
@@ -31,9 +28,9 @@ class ExitCode:
     VALIDATE_ERROR = 2
     DATABASE_ERROR = 3
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_NAME = 'csv_validator'
-ENV = 'base'
 
 REQUIREMENTS_HEADERS = ['id', 'name', 'salary']
 

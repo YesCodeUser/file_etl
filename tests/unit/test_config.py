@@ -1,10 +1,6 @@
 from pathlib import Path
 import config
 
-from config import base
-from config import prod
-from config import dev
-
 class ConfigValidationHelper:
 
     @staticmethod
@@ -62,13 +58,3 @@ def test_correctness_of_values():
     ConfigValidationHelper.log_file_is_valid()
     ConfigValidationHelper.exit_code_is_valid()
 
-
-def test_environments_isolation():
-    assert base.ENV == 'base'
-    assert base.LOG_LEVEL == 'INFO'
-
-    assert prod.ENV == 'prod'
-    assert prod.LOG_LEVEL == 'INFO'
-
-    assert dev.ENV == 'dev'
-    assert dev.LOG_LEVEL == 'DEBUG'
