@@ -12,5 +12,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT ["python3", "-m", "app"]
+ENTRYPOINT ["python3"]
 CMD ["--help"]

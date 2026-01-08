@@ -37,3 +37,5 @@ REQUIREMENTS_HEADERS = ['id', 'name', 'salary']
 LOG_DIR = BASE_DIR / 'logs'
 LOG_FILE = BASE_DIR / 'logs' / 'app.log'
 LOG_LEVEL = 'INFO'
+
+TG_BOT_TOKEN=os.getenv('TG_BOT_TOKEN', 'secret_token')

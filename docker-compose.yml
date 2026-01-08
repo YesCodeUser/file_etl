@@ -4,6 +4,7 @@ services:
     env_file: .env.docker
     depends_on:
       - postgres
+    entrypoint: ["python3", "-m", "app"]
 
   postgres:
     image: postgres:15
@@ -12,6 +13,11 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  telegram_bot:
+    build: .
+    env_file: .env.docker
+    entrypoint: ["python3", "-m", "bot.telegram_bot"]
 
 volumes:
   pgdata:

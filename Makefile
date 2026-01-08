@@ -18,3 +18,18 @@ down:
 
 logs:
 	docker compose logs -f
+
+tg_bot-up:
+	docker compose up -d telegram_bot
+
+tg_bot-logs:
+	docker compose logs -f telegram_bot
+
+tg_bot-stop:
+	docker compose stop telegram_bot
+
+tg_bot-restart:
+	docker compose restart telegram_bot
+
+tg_bot-down:
+	docker compose down telegram_bot
