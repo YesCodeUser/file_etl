@@ -19,6 +19,7 @@ down:
 logs:
 	docker compose logs -f
 
+
 tg_bot-up:
 	docker compose up -d telegram_bot
 
@@ -33,3 +34,16 @@ tg_bot-restart:
 
 tg_bot-down:
 	docker compose down telegram_bot
+
+
+api-up:
+	docker compose up -d api
+
+api-restart:
+	docker compose restart api
+
+api-logs:
+	docker compose logs -f api
+
+api-down:
+	docker compose down api
