@@ -27,8 +27,7 @@ Future access will be provided via API and Telegram bot.
 - Invalid data is rejected before persistence
 
 ## Persistence
-- SQLite (temporary solution during development)
-- Planned migration to PostgreSQL
+- PostgreSQL
 - All database writes are transactional
 - Only validated data is persisted
 
@@ -45,10 +44,10 @@ Future access will be provided via API and Telegram bot.
 - JSON reports (for easy integration with other systems)
 
 ## Roadmap
-- Raw SQL
+- SQL
 - Dockerization
 - REST API
 - Telegram bot interface
 
 ## Status
-Actively in development.
+Finish.
